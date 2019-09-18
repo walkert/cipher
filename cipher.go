@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
-	"time"
+	"math/big"
 
 	"github.com/walkert/go-evp"
 )
@@ -14,10 +14,13 @@ import (
 // RandomString is a simple function to generate a random string of a defined
 // length for use as salt/password
 func RandomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
 	bytes := make([]byte, length)
 	for i := 0; i < length; i++ {
-		bytes[i] = byte(65 + rand.Intn(57))
+		rn, err := rand.Int(rand.Reader, big.NewInt(57))
+		if err != nil {
+			panic(err) // out of randomness, should never happen
+		}
+		bytes[i] = byte(65 + int(rn.Int64()))
 	}
 	return string(bytes)
 }
