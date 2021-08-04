@@ -34,7 +34,7 @@ func EncryptBytes(data []byte, salt, pass string) ([]byte, error) {
 	// make a local copy of data
 	ldata := make([]byte, len(data))
 	copy(ldata, data)
-	key, iv := evp.BytesToKey256([]byte(salt), []byte(pass), 32, 16)
+	key, iv := evp.BytesToKeyAES256CBC([]byte(salt), []byte(pass))
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func DecryptBytes(data []byte, salt, pass string) ([]byte, error) {
 	// make a local copy of data
 	ldata := make([]byte, len(data))
 	copy(ldata, data)
-	key, iv := evp.BytesToKey256([]byte(salt), []byte(pass), 32, 16)
+	key, iv := evp.BytesToKeyAES256CBC([]byte(salt), []byte(pass))
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err

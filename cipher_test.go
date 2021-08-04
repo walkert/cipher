@@ -34,8 +34,8 @@ func TestEncryptString(t *testing.T) {
 	}{
 		{
 			"GoodVals",
-			args{"mypassword", "salt1", "encpass1"},
-			[]byte{119, 224, 79, 221, 202, 110, 165, 151, 125, 222, 121, 202, 26, 73, 252, 196},
+			args{"mypassword", "salt1234", "encpass1"},
+			[]byte{7, 74, 87, 152, 147, 12, 105, 8, 140, 103, 65, 219, 217, 216, 17, 223},
 			false,
 			"",
 			false,
@@ -52,8 +52,8 @@ func TestEncryptString(t *testing.T) {
 		},
 		{
 			"Empty pass",
-			args{"mypassword", "salt1", ""},
-			[]byte{234, 19, 90, 183, 197, 106, 14, 43, 226, 229, 55, 228, 94, 35, 215, 225},
+			args{"mypassword", "salt1234", ""},
+			[]byte{28, 175, 77, 153, 244, 89, 222, 141, 30, 213, 21, 218, 121, 208, 197, 108},
 			false,
 			"",
 			false,
@@ -100,16 +100,14 @@ func TestDecryptString(t *testing.T) {
 		want      string
 		wantErr   bool
 		errString string
-		breakSalt bool
 		breakPass bool
 	}{
 		{
 			"GoodVals",
-			args{"mypassword", "salt1", "encpass1"},
+			args{"mypassword", "salt1234", "encpass1"},
 			"mypassword",
 			false,
 			"",
-			false,
 			false,
 		},
 		{
@@ -119,15 +117,13 @@ func TestDecryptString(t *testing.T) {
 			false,
 			"",
 			false,
-			false,
 		},
 		{
 			"NoPass",
-			args{"mypassword", "salt1", ""},
+			args{"mypassword", "salt1234", ""},
 			"mypassword",
 			false,
 			"",
-			false,
 			false,
 		},
 		{
@@ -137,24 +133,13 @@ func TestDecryptString(t *testing.T) {
 			false,
 			"",
 			false,
-			false,
-		},
-		{
-			"BadSalt",
-			args{"mypassword", "salt1", "encpass1"},
-			"mypassword",
-			true,
-			"bad salt/pass",
-			true,
-			false,
 		},
 		{
 			"BadPass",
-			args{"mypassword", "salt1", "encpass1"},
+			args{"mypassword", "salt1234", "encpass1"},
 			"mypassword",
 			true,
 			"bad salt/pass",
-			false,
 			true,
 		},
 	}
@@ -165,19 +150,13 @@ func TestDecryptString(t *testing.T) {
 				t.Errorf("Unexpected error encrypting string: %v", err)
 				return
 			}
-			var decsalt string
-			if tt.breakSalt {
-				decsalt = "badSalt"
-			} else {
-				decsalt = tt.args.salt
-			}
 			var decpass string
 			if tt.breakPass {
 				decpass = "badPass"
 			} else {
 				decpass = tt.args.pass
 			}
-			got, err := DecryptString(string(encrypted), decsalt, decpass)
+			got, err := DecryptString(string(encrypted), tt.args.salt, decpass)
 			if err != nil {
 				if !tt.wantErr {
 					t.Errorf("Unexpected error: %v", err)
@@ -196,7 +175,7 @@ func TestDecryptString(t *testing.T) {
 }
 
 func TestEmptyBytes(t *testing.T) {
-	_, err := DecryptBytes([]byte{}, "test", "test")
+	_, err := DecryptBytes([]byte{}, "test1234", "test")
 	if err == nil {
 		t.Fatal("expected error but got none")
 	}
